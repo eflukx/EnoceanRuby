@@ -8,7 +8,7 @@ require 'sqlite3'
 require 'serialport'
 require 'json'
 
-require_relative "enocean"
+require_relative './lib/enocean'
 
 class SocketClient < EM::Connection
   #include EM::Protocols::LineText2
@@ -120,7 +120,7 @@ end
 
 EM.run{
   #@channel = EM::Channel.new
-  @serial = SerialPort.new("/dev/ttyUSB0", 57600)
+  @serial = SerialPort.new("/dev/ttyAMA0", 57600)
   EM.start_server '0.0.0.0', 8081, SocketClient, @serial
 
   EM::defer do

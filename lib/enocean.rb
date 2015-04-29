@@ -1,5 +1,7 @@
 $: << File.join(File.dirname(__FILE__))
 
+require 'forwardable'
+
 require 'enocean/checksum'
 require 'enocean/esp3/base_packet'
 require 'enocean/esp3/response'
