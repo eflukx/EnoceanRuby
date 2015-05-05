@@ -5,6 +5,10 @@ module Enocean
         0x05
       end
 
+      def self.from_data(data = [], optional_data = [])
+        return self.new type_id, data, optional_data
+      end
+
       def self.common_command_codes
         {:CO_WR_SLEEP=>1, :CO_WR_RESET=>2, :CO_RD_VERSION=>3, :CO_RD_SYS_LOG=>4, :CO_WR_SYS_LOG=>5,
          :CO_WR_BIST=>6, :CO_WR_IDBASE=>7, :CO_RD_IDBASE=>8, :CO_WR_REPEATER=>9, :CO_RD_REPEATER=>10,
