@@ -13,7 +13,7 @@ describe Enocean::Esp3::Radio do
     end
     
     it "should create a valid PTM200 package" do
-      packet = Enocean::Esp3::Rps.factory(radio_packet)
+      packet = Enocean::Esp3::RorgRPS.factory(radio_packet)
       packet.should_not be_nil
       packet.action1.should == :a0
       packet.to_s.should_not be_nil

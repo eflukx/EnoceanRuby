@@ -15,7 +15,7 @@ module Enocean
         return_code == 0
       end
   
-      def self.from_data(data = [], optional_data = [])
+      def self.factory(data = [], optional_data = [])
         return self.new(type_id, data, optional_data)
       end
 

@@ -12,7 +12,7 @@ puts "Starting reading..."
 loop do
   begin
     packet = reader.read_packet
-    puts "#{Enocean::Esp3::Rps.factory(packet)}" if packet
+    puts "#{Enocean::Esp3::RorgRPS.factory(packet)}" if packet
   rescue => e
     puts "Error #{e.message}"
   end

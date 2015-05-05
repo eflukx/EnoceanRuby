@@ -1,90 +1,49 @@
-
 module Enocean
   module Esp3
     class Radio < BasePacket
-  
+
       attr_accessor :sender_id, :radio_data, :rorg, :flags
 
-      def init_from_data
-        @rorg = @data[0]
-        @radio_data = @data[1..-6]
-        @sender_id = @data[-5..-2].pack("C*").unpack("N").first
-        @status = @data[-1]
-        @subTelNum,  @destId,  @dBm,  @securityLevel = @optional_data.pack("C*").unpack("BNBB") #struct.unpack('>BIBB',  str(self.optional_data))
-        @repeatCount = @status & 0x0F
-        # T21 and NU flags as tuple
-        @flags = {:t21 => (@status >> 5) & 0x01, :nu => (@status >> 4) & 0x01 }
+      def self.type_id
+        0x01
       end
 
-      def self.type_id
-        return 0x01
+      def self.rorg_codes
+        {0xf6 => RorgRPS, 0xd5 => Rorg1BS, 0xa5 => Rorg4BS}#, 0xd2 => RorgVLD} not implemented/needed (yet)
+      end
+
+      def init_from_data
+        @rorg           = @data[0]
+        @radio_data     = @data[1..-6]
+        @sender_id      = @data[-5..-2].pack("C*").unpack("N").first
+        @status         = @data[-1]
+        @learn          = learn
+        @subTelNum,
+        @destId,
+        @dBm,
+        @securityLevel  = @optional_data.pack("C*").unpack("BNBB")
+        @repeatCount    = @status & 0x0F
+        @flags          = {:t21 => (@status >> 5) & 0x01, :nu => (@status >> 4) & 0x01 }
+
+        init_eep_profile
+      end
+
+      def init_eep_profile
+        @eep_func = @eep_type = @eep_manuf = nil
+      end
+
+      def learn
+        (@radio_data.last & 8) == 0
       end
 
       def self.from_data(data = [], optional_data = [])
-        return self.new(type_id, data, optional_data)
+        if rorg_class = rorg_codes[data[0]]           # if inherited class found instantiate that
+          rorg_class.new type_id, data, optional_data
+        else
+          return self.new type_id, data, optional_data
+        end
       end
 
-      def content
-        s =<<-EOT
-**** Received at: #{Time.now} ******
-**** Data ****
-Choice          : 0x#{@rorg.to_s(16)}
-Data            : 0x#{@radio_data.collect{ |d| d.to_s(16) }.join("-")}
-Sender ID       : 0x#{@sender_id.to_s(16)}
-Status          : 0x#{@status.to_s(16)}
-**** Optional Data ****
-EOT
-        if @optional_data.count > 0
-            #s +=  'SubTelNum       : {0:d}\n'.format(self.subTelNum)
-            #s +=  'Destination ID: 0x{0:08x}\n'.format(self.destId)
-            #s +=  'dBm             : {0:d}\n'.format(self.dBm)
-            #s +=  'Security Level  : {0:d}\n'.format(self.SecurityLevel)
-        else
-            #s +=  'None\n'
-        end
-        return s
-      end
-    end
-    
-    class Rps 
-      extend Forwardable
-      def_delegator :@packet, :sender_id, :sender_id
-      attr_reader :packet
-
-      def initialize(packet)
-        @packet = packet
-      end
-      
-      def rps_data
-        packet.radio_data.first
-      end
-      
-      def self.factory(packet)
-        if (packet.rorg == 0xf6)
-          PTM200.new(packet)
-        end
-      end
-    end
-    
-    class PTM200 < Rps
-      def initialize(packet)
-        super
-        @buttons = [ :a1, :a0, :b1, :b0 ]
-      end
-      def action1
-        @buttons[rps_data >> 5]
-      end
-      def action2
-        @buttons[(rps_data >> 1) & 0b111] 
-      end
-      
-      def to_s
-        if packet.flags[:nu] && packet.flags[:t21]
-          "Rocker@#{sender_id}: Action1 #{action1} , Action2: #{action2}" 
-        else
-          "Rocker@#{sender_id}: released (#{packet.radio_data})"
-        end
-      end
     end
   end
 end
