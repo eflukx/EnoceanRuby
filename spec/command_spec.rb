@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Enocean::Esp3::CommonCommand do
   describe "ReadIdBase" do
-    let(:with_command) { Enocean::Esp3::ReadIdBase.create }
+    let(:command) { Enocean::Esp3::ReadIdBase.create }
     it "should create a ReadId command" do
       command.packet_type.should == 0x05
     end
