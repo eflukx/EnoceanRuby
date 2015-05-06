@@ -27,7 +27,6 @@ module Enocean
       end
 
       def self.factory(packet_type, data, optional_data = [])
-
         if packet_type == Radio.type_id
           return Radio.from_data(data, optional_data)
         elsif packet_type == Response.type_id

@@ -5,6 +5,10 @@ module Enocean
         0x05
       end
 
+      def response_class
+        Enocean::Esp3::Response
+      end
+
       def self.from_data(data = [], optional_data = [])
         return self.new type_id, data, optional_data
       end
@@ -21,9 +25,9 @@ module Enocean
       end
 
       def self.get_command_code cmd
-        if (cmd.is_a? Numeric) and (common_command_codes.values.include? cmd)
+        if cmd.is_a? Numeric and common_command_codes.values.include? cmd
           cmd
-        elsif (cmd.is_a? String)
+        elsif cmd.is_a? String
           get_command_code cmd.upcase.to_sym
         else
           common_command_codes[cmd]
@@ -40,22 +44,3 @@ module Enocean
 
   end
 end
-
-
-# CO_RD_IDBASE
-#     class ReadIdBase < CommonCommand
-#       def self.create
-#         # withCommand(commands :CO_RD_IDBASE)
-#         with_command(:CO_RD_IDBASE)
-#       end
-#     end
-#
-#     class ReadIdBaseResponse < Response
-#       def base_id
-#         data[1,4]
-#       end
-#       def self.factory(packet_type, data, optional_data)
-#         self.from_data(data)
-#       end
-#     end
-

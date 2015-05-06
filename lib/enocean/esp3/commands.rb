@@ -15,13 +15,18 @@ module Enocean
     end
 
     class ReadVersion < CommonCommand
+      def response_class
+        Enocean::Esp3::ReadVersionResponse
+      end
       def self.create
         with_command :CO_RD_VERSION
       end
     end
 
     class ReadSysLog < CommonCommand
-      # response!
+      def response_class
+        Enocean::Esp3::ReadSysLogResponse
+      end
       def self.create
         with_command :CO_RD_SYS_LOG
       end
@@ -33,8 +38,10 @@ module Enocean
       end
     end
 
-    class WriteSelfTest < CommonCommand
-      #response!
+    class WriteBIST < CommonCommand
+      def response_class
+        Enocean::Esp3::WriteBISTResponse
+      end
       def self.create
         with_command :CO_WR_BIST
       end
@@ -48,20 +55,13 @@ module Enocean
     end
 
     class ReadIdBase < CommonCommand
+      def response_class
+        Enocean::Esp3::ReadIdBaseResponse
+      end
       def self.create
         with_command :CO_RD_IDBASE
       end
     end
-
-    # class ReadIdBaseResponse < Response
-    #   def base_id
-    #     data[1,4]
-    #   end
-    #   def self.factory(packet_type, data, optional_data)
-    #     self.from_data(data)
-    #   end
-    # end
-
 
     class WriteFilterAdd < CommonCommand
       # 6  1 COMMAND Code   CO_WR_FILTER_ADD = 11

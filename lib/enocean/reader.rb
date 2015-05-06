@@ -14,14 +14,12 @@ module Enocean
         end
         byte
       end
-
     end
 
-    def read_packet(synchronous = false, packet_factory = Esp3::BasePacket)
+    def read_packet synchronous = false
       packet = nil
 
       if (synchronous ? @serial.sync_getbyte : @serial.getbyte) == 0x55
-
         header = Array.new(4) { |b| b = @serial.sync_getbyte }
 
         if !(@serial.sync_getbyte == crc8(header))
@@ -37,13 +35,13 @@ module Enocean
           if !(@serial.sync_getbyte == crc8(data + optional_data))
             raise InvalidData.new "Invalid CRC8 for Data"
           else
-            packet = packet_factory.factory(packet_type, data, optional_data)
+            packet = Enocean::Esp3::BasePacket.factory(packet_type, data, optional_data)
           end
-
         end
-
       end
+
       packet
+
     end
   end
 end
