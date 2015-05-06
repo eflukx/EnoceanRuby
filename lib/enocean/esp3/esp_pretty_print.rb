@@ -3,7 +3,9 @@ module Enocean
 
     class BasePacket
       def base_info
-        s =  "ESP3 packet type: 0x%02x (%s)\n" % [@packet_type, self.class]
+        s  = "\n"
+        s += "Time of display : #{Time.now}\n"
+        s += "ESP3 packet type: 0x%02x (%s)\n" % [@packet_type, self.class]
         s += "Data length     : %d\n" % @data.length
         s += "Opt. data length: %d\n" % @optional_data.length
         s
@@ -22,7 +24,6 @@ module Enocean
       def content
         s =<<-EOT
 **** Data ****
-Time of display : #{Time.now}
 Choice          : 0x#{@rorg.to_s(16)} (#{self.class.rorg_codes[@rorg]})
 Data            : 0x#{@radio_data.collect{ |d| d.to_s(16) }.join("-")}
 Sender ID       : 0x#{@sender_id.to_s(16)}

@@ -29,10 +29,17 @@ module Enocean
       def self.factory(packet_type, data, optional_data = [])
         if packet_type == Radio.type_id
           return Radio.from_data(data, optional_data)
+
         elsif packet_type == Response.type_id
           return Response.from_data(data,  optional_data)
+
+        elsif packet_type == Event.type_id
+          puts "EVNET"
+          return Event.from_data(data,  optional_data)
+
         elsif packet_type == CommonCommand.type_id
           return CommonCommand.from_data(data,  optional_data)
+
         else
           return BasePacket.new(packet_type,  data,  optional_data)
         end
