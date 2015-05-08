@@ -14,16 +14,18 @@ module Enocean
         @radio_data[0..3]
       end
 
-      def learn_eep_provided
-        learn && (@radio_data.last & 0x80) == 0x80
+      def learn_eep_provided?
+        learn? && (@radio_data.last & 0x80) == 0x80
       end
 
       def init_eep_profile
-        if learn && learn_eep_provided
+        if learn? && learn_eep_provided?
           data  = @radio_data.pack("C*").unpack("N").first
-          @eep_func     = (data & 0xff000000) >> 26
-          @eep_type     = (data & 0x03f80000) >> 19
-          @eep_manuf    = (data & 0x0007ff00) >> 8
+          func     = (data & 0xff000000) >> 26
+          type     = (data & 0x03f80000) >> 19
+          manuf    = (data & 0x0007ff00) >> 8
+
+          EepId.new [Rorg4BS.rorg_code, func, type, manuf]
         end
       end
 
@@ -50,7 +52,7 @@ module Enocean
         0xf6
       end
 
-      def learn
+      def learn?
         false
       end
     end

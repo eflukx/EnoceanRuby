@@ -7,9 +7,8 @@
   s.authors     = ["Lars-Jørgen Kristiansen", "Rogier Lodewijks", "Christian a.k.a. mccare"]
   s.email       = 'whiterabbit@rabbithole.to'
   s.files       = [ 'lib/enocean.rb',
-                    'lib/enocean/overrides.rb',
+                    'lib/enocean/overrides_types_tools.rb',
                     'lib/enocean/checksum.rb',
-                    'lib/enocean/tools.rb',
                     'lib/enocean/reader.rb',
                     'lib/enocean/writer.rb',
                     'lib/enocean/esp3/base_packet.rb',

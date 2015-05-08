@@ -24,14 +24,13 @@ module Enocean
       def content
         s =<<-EOT
 **** Data ****
-Choice          : 0x#{@rorg.to_s(16)} (#{self.class.rorg_codes[@rorg]})
-Data            : 0x#{@radio_data.collect{ |d| d.to_s(16) }.join("-")}
-Sender ID       : 0x#{@sender_id.to_s(16)}
-Status          : 0x#{@status.to_s(16)}
+Choice          : 0x#{@rorg.to_s 16} (#{self.class.rorg_codes[@rorg]})
+Data            : 0x#{@radio_data.hex_join("-")}
+Sender ID       : 0x#{@sender_id}
+Status          : 0x#{@status.to_s 16}
 Learnmode       : #{@learn}
-#{"eep_function    : 0x#{@eep_func.to_s 16}" if @eep_func}
-#{"eep_type        : 0x#{@eep_type.to_s 16}" if @eep_type}
-#{"eep_manufacturer: 0x#{@eep_manuf.to_s 16}" if @eep_manuf}
+#{"EEP             : 0x#{@eep.to_s}" if @eep}
+#{"Manufacturer    : #{@eep.manufacturer_name} (0x#{@eep.manuf.to_s 16})" if @eep}
 **** Optional Data ****
 EOT
         if @optional_data.count > 0

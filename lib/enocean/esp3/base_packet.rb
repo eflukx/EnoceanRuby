@@ -34,7 +34,6 @@ module Enocean
           return Response.from_data(data,  optional_data)
 
         elsif packet_type == Event.type_id
-          puts "EVNET"
           return Event.from_data(data,  optional_data)
 
         elsif packet_type == CommonCommand.type_id

@@ -4,9 +4,9 @@ require 'forwardable'
 require 'pry'
 require 'pry-debugger'
 
-require 'enocean/overrides'
+require 'enocean/overrides_types_tools'
 require 'enocean/checksum'
-require 'enocean/tools'
+require 'enocean/manufacturers'
 
 require 'enocean/reader'
 require 'enocean/writer'

@@ -44,7 +44,7 @@ module Enocean
 
     class ReadIdBaseResponse < Response
       def base_id
-        data[1,4]
+        DeviceId.new data[1,4]
       end
 
       def content

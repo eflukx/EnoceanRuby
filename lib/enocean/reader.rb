@@ -7,7 +7,6 @@ module Enocean
   class Reader
     def initialize(serial)
       @serial = serial
-
       def @serial.sync_getbyte
         while !(byte = self.getbyte) do
           sleep 0.001 # Yes a hack, reduces cpu load.

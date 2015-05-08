@@ -1,5 +1,5 @@
-vendor
-Gemfile.lock
 .idea
 desktop.ini
+Gemfile.lock
+EnoceanRuby*.gem
 *.log

@@ -1,8 +1,9 @@
 module Enocean
   module Esp3
+
     class Radio < BasePacket
 
-      attr_accessor :sender_id, :radio_data, :rorg, :flags
+      attr_accessor :sender_id, :radio_data, :rorg, :eep, :status, :rorg, :flags
 
       def self.type_id
         0x01
@@ -15,24 +16,23 @@ module Enocean
       def init_from_data
         @rorg           = @data[0]
         @radio_data     = @data[1..-6]
-        @sender_id      = @data[-5..-2].pack("C*").unpack("N").first
+        @sender_id      = DeviceId.new @data[-5..-2]
         @status         = @data[-1]
-        @learn          = learn
+        @learn          = learn?
+        @eep            = init_eep_profile
         @subTelNum,
         @destId,
         @dBm,
         @securityLevel  = @optional_data.pack("C*").unpack("BNBB")
         @repeatCount    = @status & 0x0F
         @flags          = {:t21 => (@status >> 5) & 0x01, :nu => (@status >> 4) & 0x01 }
-
-        init_eep_profile
       end
 
       def init_eep_profile
-        @eep_func = @eep_type = @eep_manuf = nil
+        nil
       end
 
-      def learn
+      def learn?
         (@radio_data.last & 8) == 0
       end
 

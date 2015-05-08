@@ -1,8 +1,10 @@
 source 'http://rubygems.org'
 
+gem 'pry'
+gem 'pry-debugger'
+gem 'debugger'
+gem 'logger'
 gem 'eventmachine'
-gem 'sqlite3'
 gem 'serialport'
 gem 'rspec'
 gem 'rspec-core'
-gem 'debugger'

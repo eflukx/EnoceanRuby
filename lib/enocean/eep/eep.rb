@@ -1,4 +1,4 @@
-  module Enocean
+module Enocean
   module Eep
 
     class A5_20_01
@@ -7,8 +7,16 @@
         "Battery Powered Actuator"
       end
 
+      def self.eep
+        EepId.new [0xa5,20,1]
+      end
+
       def self.to_s
         description
+      end
+
+      def to_s
+        data.hex_join '-'
       end
 
       class Response < A5_20_01

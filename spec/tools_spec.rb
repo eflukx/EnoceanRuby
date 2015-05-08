@@ -25,4 +25,21 @@ module  Enocean
     end
 
   end
+
+  describe "Enocean::EepId" do
+    eep = EepId.new [0xa5,0x20,1,0x34]
+
+    it "should find the right Eep class based on eep data" do
+      expect(eep.eep_class).to be Enocean::Eep::A5_20_01
+    end
+
+    it "should return rorg, type, func and manuf" do
+      expect(eep.rorg).to eq 0xa5
+      expect(eep.func).to eq 0x20
+      expect(eep.type).to eq 0x01
+      expect(eep.manuf).to eq 0x34
+    end
+
+  end
+
 end
