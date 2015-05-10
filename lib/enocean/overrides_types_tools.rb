@@ -1,3 +1,9 @@
+class Integer
+  def clamp lower, upper
+    self < lower ? lower : (self > upper ? upper : self)
+  end
+end
+
 class Array
   def to_hexs
     self.pack("C*").unpack("H*").first

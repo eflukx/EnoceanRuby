@@ -11,16 +11,16 @@ module Enocean
       end
 
       def telegram_data
-        @radio_data[0..3]
+        radio_data[0..3]
       end
 
-      def learn_eep_provided?
-        learn? && (@radio_data.last & 0x80) == 0x80
+      def eep_provided?
+        learn? && (radio_data.last & 0x80) == 0x80
       end
 
-      def init_eep_profile
-        if learn? && learn_eep_provided?
-          data  = @radio_data.pack("C*").unpack("N").first
+      def eep
+        if eep_provided?
+          data  = radio_data.pack("C*").unpack("N").first
           func     = (data & 0xff000000) >> 26
           type     = (data & 0x03f80000) >> 19
           manuf    = (data & 0x0007ff00) >> 8
@@ -42,7 +42,7 @@ module Enocean
       end
 
       def telegram_data
-        @radio_data.first
+        radio_data.first
       end
 
     end

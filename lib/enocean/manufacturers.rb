@@ -1,5 +1,5 @@
 module Enocean
-  module Eep
+  class Eep
     def self.manufacturers
       {0=>"manufacturer reserved", 1=>"Peha", 2=>"Thermokon", 3=>"Servodan", 4=>"Echoflex Solutions", 5=>"Omnio ag", 6=>"Hardmeier electronics", 7=>"Regulvar Inc.", 8=>"Ad hoc electronics", 9=>"Distech controls", 10=>"Kieback and Peter",
       11=>"Enocean GmbH", 12=>"Probare", 13=>"Eltako", 14=>"Leviton", 15=>"Honeywell", 16=>"Spartan peripheral devices", 17=>"Siemens", 18=>"T mac", 19=>"Reliable controls corporation", 20=>"Elsner elektronik GmbH", 21=>"Diehl controls",

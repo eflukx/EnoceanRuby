@@ -1,7 +1,12 @@
 module Enocean
-  module Eep
+  class Eep
 
-    class A5_20_01
+    def esp_packet *args
+      Enocean::Esp3::Radio.rorg_codes[self.class.eep.rorg].create self.data, *args
+    end
+
+    class A5_20_01 < Eep
+
 
       def self.description
         "Battery Powered Actuator"
