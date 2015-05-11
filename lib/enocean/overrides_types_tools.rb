@@ -12,11 +12,39 @@ class Array
   def hex_join delimiter = ''
     self.collect{|i| "%02x" % i }.join(delimiter)
   end
+  
+  def deserialize_esp_packet
+    if self.shift == 0x55
+    
+      header = self[0..3]
+      if self[4] != crc8(header)
+        raise Enocean::InvalidHeader.new "Invalid CRC8 for Header"
+      else
+
+        data_length = (header[0] << 8) | header[1]
+        optional_data_length = header[2]
+        data          = self[5..4 + data_length]
+        optional_data = self[-1 - optional_data_length..-2]
+        if self[-1] != crc8(data + optional_data)
+          raise Enocean::InvalidData.new "Invalid CRC8 for Data"
+        else
+        
+          packet_type = header[3]
+          Enocean::Esp3::BasePacket.factory(packet_type, data, optional_data)
+        end
+      end
+    end  
+  end
+  
 end
 
 class String
   def to_byte_array
-    self.each_char.map{|i|i.ord}
+    self.unpack"C*"
+  end
+  
+  def deserialize_esp_packet
+    self.unpack("C*").deserialize_esp_packet
   end
 end
 
