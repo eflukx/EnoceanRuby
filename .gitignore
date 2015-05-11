@@ -1,4 +1,7 @@
+.bundle
 .idea
+bin
+vendor
 desktop.ini
 Gemfile.lock
 EnoceanRuby*.gem
