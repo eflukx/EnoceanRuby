@@ -7,6 +7,7 @@ module Enocean
   class Reader
     def initialize(serial)
       @serial = serial
+
       def @serial.sync_getbyte
         while !(byte = self.getbyte) do
           sleep 0.001 # Yes a hack, reduces cpu load.
@@ -17,7 +18,6 @@ module Enocean
 
     def read_packet synchronous = false
       packet = nil
-
       if (synchronous ? @serial.sync_getbyte : @serial.getbyte) == 0x55
         header = Array.new(4) { |b| b = @serial.sync_getbyte }
 

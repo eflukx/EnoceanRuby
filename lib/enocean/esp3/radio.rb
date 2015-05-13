@@ -32,7 +32,7 @@ module Enocean
       end
 
       def dest_id
-        DeviceId.new optional_data[1..4]
+        DeviceId.new optional_data[1..4] unless optional_data[1..4].include? nil
       end
 
       def dest_id= newid
@@ -89,6 +89,10 @@ module Enocean
 
       def learn= lrn
         lrn ? (data[-6] = data[-6] & 247) : (data[-6] = data[-6] | 8)
+      end
+
+      def eep
+
       end
 
       def self.from_data(data = [], optional_data = [])

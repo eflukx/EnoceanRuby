@@ -22,7 +22,7 @@ module Enocean
 
     class Radio
       def content
-        s = %Q\
+        str = %Q\
 **** Data ****
 Rorg / Choice   : 0x#{rorg.to_s 16} (#{self.class.rorg_codes[rorg]})
 Data            : 0x#{radio_data.hex_join("-")}
@@ -30,12 +30,12 @@ Sender ID       : 0x#{sender_id}
 Status          : 0x#{status.to_s 16}
 Learnmode       : #{learn?}\
 
-        s << %Q\
+          str << %Q\
 EEP             : 0x#{eep.to_s}
 Manufacturer    : #{eep.manufacturer_name} (0x#{eep.manuf.to_s 16})\ if eep
 
         if @optional_data.count > 0
-            s <<  %Q\
+          str <<  %Q\
 
 **** Optional Data ****
 SubTelNum       : #{subtel_num}
@@ -43,9 +43,9 @@ Destination ID  : 0x#{dest_id}
 dBm             : -#{dbm}dBm
 Security Level  : #{security_level}\
         else
-            s <<  "\n\n(No optional data)\n"
+          str <<  "\n\n(No optional data)\n"
         end
-        s
+        str
       end
     end
 
