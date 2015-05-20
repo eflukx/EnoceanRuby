@@ -1,22 +1,73 @@
 require 'logger'
 
-class EnoceanApp
+class EnoceanExample
 
   class << self
     attr_accessor :logger
   end
   @logger = Logger.new(STDOUT)
 
-  attr_accessor :reader, :writer, :listen_thread
+  attr_accessor :reader, :writer, :listen_thread, :next_setting, :serial, :incoming_esp_packets, :known_devices, :my_device_id, :logger
 
-  def initialize serial, loglevel = Logger::DEBUG
-    EnoceanApp::logger.level = loglevel
+  def initialize serial, my_device_id = [0xde,0xad,0xbe, 0xef], known_devices_file = 'known_devices.yml'
+
+    EnoceanExample::logger.level = Logger::DEBUG
 
     @serial  = serial
     @reader  = Enocean::Reader.new(serial)
     @writer  = Enocean::Writer.new(serial)
+
+    @my_device_id         = Enocean::DeviceId.new my_device_id
     @incoming_esp_packets = []
-    @queued_packets = {}
+    @next_setting         = {}
+
+    @known_devices_file   = known_devices_file
+    @known_devices        = File.exists?(known_devices_file) ? YAML.load_file(known_devices_file) : {}
+    EnoceanExample::logger.info "#{@known_devices.length} known devices loaded from #{known_devices_file}"
+  end
+
+  # Creates a new request
+  # Looks up eep class in known devices, and returns a new encapsulating ESP packet
+  def eep_request_packet_by_devid setting, id = "01-85-b1-bc"
+    eep_req = @known_devices[id.to_s].eep.eep_class::Request.new setting
+    eep_req.summer = false
+
+    req_packet                = eep_req.esp_packet
+    req_packet.sender_id      = my_device_id
+    req_packet.security_level = 0
+    req_packet.subtel_num     = 1
+    req_packet.dest_id        = @known_devices[id.to_s].sender_id
+
+    req_packet
+  end
+
+  # Looks up the eep profile in the known devices list, decode telegram data with new eep object
+  def decode_eep_data packet
+    if packet.is_radio_packet? #needs to be a radio packet
+      unless packet.learn?
+        if known_device = @known_devices[packet.sender_id.to_s] #we need to lookup the eep
+          known_device.eep.eep_class::Response.new(packet.telegram_data) # got it
+        end
+      end
+    end
+  end
+
+  def add_device_to_known_devices packet, save_to_file = true
+    device_key = packet.sender_id.to_s
+
+    if @known_devices[device_key]
+      EnoceanExample::logger.info "Device #{device_key} already known! Updating known devices list"
+    else
+      EnoceanExample::logger.info "Adding device #{device_key} to known devices list"
+    end
+
+    @known_devices[device_key] = packet
+
+    save_known_devices if save_to_file
+  end
+
+  def save_known_devices
+    File.open(@known_devices_file, 'w+') { |file| file.write @known_devices.to_yaml }
   end
 
   def last_received_packet
@@ -35,7 +86,7 @@ class EnoceanApp
 
   def start_listening
     @listen_thread = Thread.new {
-      EnoceanApp::logger.debug "Start listening!"
+      EnoceanExample::logger.debug "Start listening!"
       Thread.current[:run] = true
 
       while Thread.current[:run] do
@@ -45,7 +96,7 @@ class EnoceanApp
             yield esp_packet
           end
         rescue => e
-          EnoceanApp::logger.error "Exception in listening thread #{Thread.current}: #{e}"
+          EnoceanExample::logger.error "Exception in listening thread #{Thread.current}: #{e}"
         end
         sleep 0.001
       end
