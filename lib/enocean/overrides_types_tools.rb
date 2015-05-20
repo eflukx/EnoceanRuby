@@ -45,12 +45,13 @@ class String
   
   def deserialize_esp_packet
     self.unpack("C*").deserialize_esp_packet
-    end
+  end
 
   def black;          "\033[30m#{self}\033[0m" end
   def red;            "\033[31m#{self}\033[0m" end
   def green;          "\033[32m#{self}\033[0m" end
   def brown;          "\033[33m#{self}\033[0m" end
+  def yellow;         brown.bold               end
   def blue;           "\033[34m#{self}\033[0m" end
   def magenta;        "\033[35m#{self}\033[0m" end
   def cyan;           "\033[36m#{self}\033[0m" end
@@ -93,6 +94,10 @@ module Enocean
     def to_s
       self[0..3].hex_join('-')
     end
+
+    def to_json *args
+      self.to_s.to_json args
+    end
   end
 
   class EepId < Array
@@ -127,6 +132,10 @@ module Enocean
 
     def to_s
       self[0..2].hex_join('-')
+    end
+
+    def to_json *args
+      self.to_s.to_json args
     end
 
     def eep_class

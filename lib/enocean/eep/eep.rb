@@ -19,6 +19,10 @@ module Enocean
         EepId.new [0xa5,20,1]
       end
 
+      def to_hash
+        {data: data}
+      end
+
       def to_s
         data.hex_join '-'
       end
@@ -76,7 +80,7 @@ module Enocean
         end
 
         def to_s
-        %Q\
+          %Q\
 *** Data of #{self.class} ***
 current_value         : #{current_value}
 temperature           : #{"%.2f" % temperature}
@@ -88,7 +92,21 @@ contact_open          : #{contact_open}
 out_of_range          : #{out_of_range}
 window_open           : #{window_open}
 actuator_obstructed   : #{actuator_obstructed}
-\
+          \
+        end
+
+        def to_hash
+          {eep: self.class.eep,
+           current_value: current_value,
+           temperature: temperature,
+           service_on: service_on,
+           energy_input_enabled: energy_input_enabled,
+           energy_storage: energy_storage,
+           battery_capacity: battery_capacity,
+           contact_open: contact_open,
+           out_of_range: out_of_range,
+           window_open: window_open,
+           actuator_obstructed: actuator_obstructed}
         end
 
       end
