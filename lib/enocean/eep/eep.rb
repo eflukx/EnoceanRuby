@@ -16,7 +16,11 @@ module Enocean
       end
 
       def self.eep
-        EepId.new [0xa5,20,1]
+        EepId.new [0xa5,0x20,0x01]
+      end
+
+      def to_json *args
+        to_hash.to_json *args
       end
 
       def to_hash

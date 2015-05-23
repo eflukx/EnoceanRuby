@@ -19,40 +19,20 @@ class EnoceanExample
 
     @my_device_id         = Enocean::DeviceId.new my_device_id
     @incoming_esp_packets = []
-    @next_setting         = {}
 
     @known_devices_file   = known_devices_file
-    @known_devices        = File.exists?(known_devices_file) ? YAML.load_file(known_devices_file) : {}
-    EnoceanExample::logger.info "#{@known_devices.length} known devices loaded from #{known_devices_file}"
+    init_known_devices
   end
 
-  # Creates a new request
-  # Looks up eep class in known devices, and returns a new encapsulating ESP packet
-  def eep_request_packet_by_devid setting, id = "01-85-b1-bc"
-    eep_req = @known_devices[id.to_s].eep.eep_class::Request.new setting
-    eep_req.summer = false
-
-    req_packet                = eep_req.esp_packet
-    req_packet.sender_id      = my_device_id
-    req_packet.security_level = 0
-    req_packet.subtel_num     = 1
-    req_packet.dest_id        = @known_devices[id.to_s].sender_id
-
-    req_packet
+  def init_known_devices
+    @known_devices        = File.exists?(@known_devices_file) ? YAML.load_file(@known_devices_file) : {}
+    EnoceanExample::logger.info "#{@known_devices.length} known devices loaded from #{@known_devices_file}"
   end
 
-  # Looks up the eep profile in the known devices list, decode telegram data with new eep object
-  def decode_eep_data packet
-    if packet.is_radio_packet? #needs to be a radio packet
-      unless packet.learn?
-        if known_device = @known_devices[packet.sender_id.to_s] #we need to lookup the eep
-          known_device.eep.eep_class::Response.new(packet.telegram_data) # got it
-        end
-      end
-    end
-  end
+  def add_known_device packet, options = {}
+    options = {save_to_file: true, active: false}.merge(options)
+    puts "options: #{options}"
 
-  def add_device_to_known_devices packet, save_to_file = true
     device_key = packet.sender_id.to_s
 
     if @known_devices[device_key]
@@ -61,17 +41,71 @@ class EnoceanExample
       EnoceanExample::logger.info "Adding device #{device_key} to known devices list"
     end
 
-    @known_devices[device_key] = packet
+    #TODO once active, will not deactivate anymore. Dp we need a special call for this?
+    if @known_devices[device_key]
+      set_active = @known_devices[device_key].fetch(:active, false) || options[:active]
+    else
+      set_active = options[:active]
+    end
 
-    save_known_devices if save_to_file
+    @known_devices[device_key] = {active: set_active, packet: packet}
+
+    EnoceanExample::logger.info "Device #{device_key} is #{set_active ? "active" : "not active"}"
+
+    save_known_devices if options[:save_to_file]
   end
 
   def save_known_devices
     File.open(@known_devices_file, 'w+') { |file| file.write @known_devices.to_yaml }
   end
 
-  def last_received_packet
-    @incoming_esp_packets.last
+  # Creates a new request
+  # Looks up eep class in known devices, and returns a new encapsulating ESP packet
+  def eep_request_packet_by_devid setting, id
+    if known_device =  @known_devices[id.to_s]
+      dev_packet = known_device[:packet]
+
+      eep_req = dev_packet.eep.eep_class::Request.new setting
+      eep_req.summer = false
+
+      req_packet                = eep_req.esp_packet
+      req_packet.sender_id      = my_device_id
+      req_packet.security_level = 0
+      req_packet.subtel_num     = 1
+      req_packet.dest_id        = dev_packet.sender_id
+      req_packet
+    end
+  end
+
+  def device_known? packet
+    if @known_devices[packet.sender_id.to_s]
+      true
+    else
+      false
+    end
+  end
+
+  def device_active? packet
+    if d = @known_devices[packet.sender_id.to_s]
+      d.fetch(:active, false)
+    else
+      false
+    end
+  end
+
+  def find_known_device packet
+    @known_devices[packet.sender_id.to_s]
+  end
+
+  # Looks up the eep profile in the known devices list, decode telegram data with new eep object
+  def decode_eep_data packet
+    if packet.is_radio_packet? #needs to be a radio packet
+      unless packet.learn?
+        if known_device = find_known_device(packet) # We need to lookup the eep
+          known_device[:packet].eep.eep_class::Response.new(packet.telegram_data) # got it
+        end
+      end
+    end
   end
 
   def send_command cmd, *opts
@@ -97,6 +131,7 @@ class EnoceanExample
           end
         rescue => e
           EnoceanExample::logger.error "Exception in listening thread #{Thread.current}: #{e}"
+          raise
         end
         sleep 0.001
       end

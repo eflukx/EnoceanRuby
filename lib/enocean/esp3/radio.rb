@@ -76,7 +76,7 @@ module Enocean
       end
 
       def repeat_count= newrepcount
-        data[-1] = (data[-1] & 0xf0) | (newrepcount & 0xf)
+        data[-1] = (data[-1] & 0xf0) | (newrepcount.clamp 0, 0x0f)
       end
 
       def flags

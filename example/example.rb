@@ -52,7 +52,7 @@ handle_incoming_packet = ->(packet){
 app.start_listening do |packet|
 
   if packet.learn?
-    app.add_device_to_known_devices packet
+    app.add_known_device packet
   else
     handle_incoming_packet.(packet)
   end
